@@ -655,6 +655,15 @@ func (l *loggingT) printf(s severity, format string, args ...interface{}) {
 	l.output(s, buf, file, line, false)
 }
 
+func (l *loggingT) printfDepth(s severity, depth int, format string, args ...interface{}) {
+	buf, file, line := l.header(s, depth)
+	fmt.Fprintf(buf, format, args...)
+	if buf.Bytes()[buf.Len()-1] != '\n' {
+		buf.WriteByte('\n')
+	}
+	l.output(s, buf, file, line, false)
+}
+
 // printWithFileLine behaves like print but uses the provided file and line number.  If
 // alsoLogToStderr is true, the log message always appears on standard error; it
 // will also appear in the log file unless --logtostderr is set.
@@ -1073,6 +1082,12 @@ func Infof(format string, args ...interface{}) {
 	logging.printf(infoLog, format, args...)
 }
 
+// InfofDepth acts as Infof but uses depth to determine which call frame to log.
+// Arguments are handled in the manner of fmt.Printf; a newline is appended if missing.
+func InfofDepth(depth int, format string, args ...interface{}) {
+	logging.printfDepth(infoLog, depth, format, args...)
+}
+
 // Warning logs to the WARNING and INFO logs.
 // Arguments are handled in the manner of fmt.Print; a newline is appended if missing.
 func Warning(args ...interface{}) {
@@ -1097,6 +1112,12 @@ func Warningf(format string, args ...interface{}) {
 	logging.printf(warningLog, format, args...)
 }
 
+// WarningfDepth acts as Warningf but uses depth to determine which call frame to log.
+// Arguments are handled in the manner of fmt.Printf; a newline is appended if missing.
+func WarningfDepth(depth int, format string, args ...interface{}) {
+	logging.printfDepth(warningLog, depth, format, args...)
+}
+
 // Error logs to the ERROR, WARNING, and INFO logs.
 // Arguments are handled in the manner of fmt.Print; a newline is appended if missing.
 func Error(args ...interface{}) {
@@ -1119,6 +1140,12 @@ func Errorln(args ...interface{}) {
 // Arguments are handled in the manner of fmt.Printf; a newline is appended if missing.
 func Errorf(format string, args ...interface{}) {
 	logging.printf(errorLog, format, args...)
+}
+
+// ErrorfDepth acts as Errorf but uses depth to determine which call frame to log.
+// Arguments are handled in the manner of fmt.Printf; a newline is appended if missing.
+func ErrorfDepth(depth int, format string, args ...interface{}) {
+	logging.printfDepth(errorLog, depth, format, args...)
 }
 
 // Fatal logs to the FATAL, ERROR, WARNING, and INFO logs,
