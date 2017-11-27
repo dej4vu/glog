@@ -1175,6 +1175,13 @@ func Fatalf(format string, args ...interface{}) {
 	logging.printf(fatalLog, format, args...)
 }
 
+// FatalfDepth acts as Fatalf but uses depth to determine which call frame to log.
+// including a stack trace of all running goroutines, then calls os.Exit(255).
+// Arguments are handled in the manner of fmt.Printf; a newline is appended if missing.
+func FatalfDepth(depth int, format string, args ...interface{}) {
+	logging.printfDepth(fatalLog, depth, format, args...)
+}
+
 // fatalNoStacks is non-zero if we are to exit without dumping goroutine stacks.
 // It allows Exit and relatives to use the Fatal logs.
 var fatalNoStacks uint32
@@ -1204,4 +1211,11 @@ func Exitln(args ...interface{}) {
 func Exitf(format string, args ...interface{}) {
 	atomic.StoreUint32(&fatalNoStacks, 1)
 	logging.printf(fatalLog, format, args...)
+}
+
+// ExitfDepth acts as Exitf but uses depth to determine which call frame to log.
+// Arguments are handled in the manner of fmt.Printf; a newline is appended if missing.
+func ExitfDepth(depth int, format string, args ...interface{}) {
+	atomic.StoreUint32(&fatalNoStacks, 1)
+	logging.printfDepth(fatalLog, depth, format, args...)
 }
